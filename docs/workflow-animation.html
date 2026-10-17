@@ -1,0 +1,285 @@
+<title>Lead Re-enrichment Flow</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: two swimlanes (HubSpot workflow / n8n) that light up in time order, a stepper caption, and the note the rep sees */
+:root {
+  --bg: #f3f5f7;
+  --surface: #ffffff;
+  --ink: #17212b;
+  --muted: #5d6b78;
+  --line: #d5dce3;
+  --hub: #d9622b;      /* HubSpot lane */
+  --hub-soft: #fbe9df;
+  --n8n: #2f6f8f;      /* n8n lane */
+  --n8n-soft: #e1eef4;
+  --ok: #2c7a4b;
+  --warn: #b4472f;
+  --display: "Familjen Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11171d; --surface: #1a232c; --ink: #e6ebf0; --muted: #93a1ae; --line: #2c3945;
+    --hub: #f08a55; --hub-soft: #3a2519; --n8n: #6db3d4; --n8n-soft: #17303c;
+    --ok: #6cc08f; --warn: #ec8a73; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11171d; --surface: #1a232c; --ink: #e6ebf0; --muted: #93a1ae; --line: #2c3945;
+  --hub: #f08a55; --hub-soft: #3a2519; --n8n: #6db3d4; --n8n-soft: #17303c;
+  --ok: #6cc08f; --warn: #ec8a73; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 48px;
+}
+.wrap { max-width: 1040px; margin: 0 auto; display: grid; gap: 28px; }
+header { display: grid; gap: 8px; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(28px, 4.5vw, 42px); line-height: 1.1; margin: 0; text-wrap: balance; }
+.lede { margin: 0; color: var(--muted); max-width: 62ch; }
+
+.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.seg button, .btn {
+  font: 500 14px var(--body); color: var(--ink); background: transparent; border: 0; padding: 8px 14px; cursor: pointer;
+}
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.btn { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+button:focus-visible { outline: 2px solid var(--n8n); outline-offset: 2px; }
+.example-tag { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+
+.board { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; display: grid; gap: 18px; overflow-x: auto; }
+.lane { display: grid; grid-template-columns: 130px 1fr; gap: 14px; align-items: center; min-width: 760px; }
+.lane-label { font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+.lane.hub .lane-label { color: var(--hub); }
+.lane.n8n .lane-label { color: var(--n8n); }
+.track { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; position: relative; }
+.node {
+  position: relative; margin-right: 26px; padding: 12px 12px 12px; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--bg); transition: background .35s, border-color .35s, transform .35s, opacity .35s; opacity: .55;
+}
+.track .node:last-child { margin-right: 0; }
+.node::after { /* connector to next node */
+  content: ""; position: absolute; top: 50%; right: -27px; width: 26px; height: 2px; background: var(--line);
+}
+.track .node:last-child::after { display: none; }
+.node .k { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.node .t { font-weight: 600; font-size: 14px; line-height: 1.3; }
+.node.done { opacity: 1; }
+.lane.hub .node.done { border-color: var(--hub); }
+.lane.n8n .node.done { border-color: var(--n8n); }
+.node.active { opacity: 1; transform: translateY(-3px); }
+.lane.hub .node.active { background: var(--hub-soft); border-color: var(--hub); }
+.lane.n8n .node.active { background: var(--n8n-soft); border-color: var(--n8n); }
+.lane.hub .node.done::after { background: var(--hub); }
+.lane.n8n .node.done::after { background: var(--n8n); }
+.timer { font-family: var(--mono); font-size: 12px; color: var(--hub); font-variant-numeric: tabular-nums; }
+
+.bridge { min-width: 760px; display: grid; grid-template-columns: 130px 1fr; gap: 14px; }
+.bridge-row { display: grid; grid-template-columns: repeat(4, 1fr); font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.bridge-row span { padding-left: 4px; transition: color .35s; }
+.bridge-row span.on { color: var(--ink); }
+
+.below { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 760px) { .below { grid-template-columns: 1fr; } }
+.panel { min-width: 0; display: grid; gap: 10px; align-content: start; }
+.panel h2 { font-family: var(--display); font-size: 18px; margin: 0; font-weight: 700; }
+.step-caption { font-size: 15px; margin: 0; min-height: 4.8em; }
+.payload {
+  font-family: var(--mono); font-size: 12.5px; line-height: 1.6; background: var(--surface); border: 1px solid var(--line);
+  border-radius: 10px; padding: 14px; margin: 0; white-space: pre-wrap; overflow-x: auto; min-height: 168px;
+}
+.note {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 4px;
+  transition: opacity .4s;
+}
+.note.pending { opacity: .45; }
+.note .head { font-size: 12px; color: var(--muted); font-family: var(--mono); display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.note .line { font-size: 14.5px; }
+.note .line b { font-weight: 600; }
+.pill { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12.5px; font-weight: 600; }
+.pill.yes { color: var(--ok); border: 1px solid var(--ok); }
+.pill.no { color: var(--warn); border: 1px solid var(--warn); }
+.assign { font-size: 14px; color: var(--muted); }
+.assign b { color: var(--ink); }
+.dots { display: flex; gap: 6px; }
+.dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); transition: background .3s; }
+.dots i.on { background: var(--ink); }
+@media (prefers-reduced-motion: reduce) { .node, .note { transition: none; } .node.active { transform: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">HubSpot · n8n · Apify · Claude</div>
+    <h1>Every SQL gets re-checked before a rep sees it</h1>
+    <p class="lede">When a contact becomes a Sales Qualified Lead, n8n pulls their live LinkedIn profile, an AI step compares it with the HubSpot record, and the result lands as a note on the contact. Five minutes later HubSpot assigns the rep, who opens a record that is already verified.</p>
+  </header>
+
+  <div class="controls">
+    <div class="seg" role="group" aria-label="Example lead">
+      <button id="sc-stayed" aria-pressed="true">Lead still at company</button>
+      <button id="sc-left" aria-pressed="false">Lead has left</button>
+    </div>
+    <button class="btn" id="play">Pause</button>
+    <button class="btn" id="replay">Replay</button>
+    <span class="example-tag">Example lead, not real data</span>
+  </div>
+
+  <section class="board" aria-label="Workflow">
+    <div class="lane hub">
+      <div class="lane-label">HubSpot workflow</div>
+      <div class="track">
+        <div class="node" data-s="0"><div class="k">Trigger</div><div class="t">Lifecycle stage = SQL</div></div>
+        <div class="node" data-s="1"><div class="k">Action 1</div><div class="t">Send webhook</div></div>
+        <div class="node" data-s="2"><div class="k">Action 2</div><div class="t">Delay 5 min</div><div class="timer" id="timer">5:00</div></div>
+        <div class="node" data-s="6"><div class="k">Action 3</div><div class="t">Rotate to owner</div></div>
+      </div>
+    </div>
+    <div class="bridge"><div></div>
+      <div class="bridge-row"><span></span><span id="b1">↓ contact data</span><span></span><span id="b2">↑ note already on record</span></div>
+    </div>
+    <div class="lane n8n">
+      <div class="lane-label">n8n</div>
+      <div class="track">
+        <div class="node" data-s="2"><div class="k">Webhook</div><div class="t">Receive contact</div></div>
+        <div class="node" data-s="3"><div class="k">Apify actor</div><div class="t">Get latest LinkedIn data</div></div>
+        <div class="node" data-s="4"><div class="k">Claude</div><div class="t">Compare to HubSpot</div></div>
+        <div class="node" data-s="5"><div class="k">HTTP request</div><div class="t">Add note to HubSpot</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="below">
+    <div class="panel">
+      <div class="dots" id="dots" aria-hidden="true"></div>
+      <h2 id="step-title">Contact becomes an SQL</h2>
+      <p class="step-caption" id="step-caption"></p>
+      <pre class="payload" id="payload"></pre>
+    </div>
+    <div class="panel">
+      <h2>What the rep opens</h2>
+      <div class="note pending" id="note">
+        <div class="head"><span>Note created via n8n</span><span id="note-date">17 Oct 2026</span></div>
+        <div id="note-body"></div>
+      </div>
+      <p class="assign" id="assign">Waiting for the 5-minute delay to finish before the lead is assigned.</p>
+    </div>
+  </section>
+</div>
+
+<script>
+const scenarios = {
+  stayed: {
+    hub: { name: "Dana Reyes", company: "Northwind Hotels", title: "Purchasing Manager", linkedin: "linkedin.com/in/dana-reyes" },
+    li: [
+      { company: "Northwind Hotels", title: "Manager, Purchasing", current: true, start: "Mar 2021" },
+      { company: "Northwind Hotels", title: "Purchasing Agent", current: false, start: "Jun 2016" }
+    ],
+    note: [
+      ["Name", "Dana Reyes"],
+      ["Still at company", "Yes", "yes"],
+      ["Current title", "Manager, Purchasing (HubSpot had: Purchasing Manager)"],
+      ["Title changed", "No"],
+      ["Promoted", "No"]
+    ],
+    assign: "Assigned to <b>Sarah (AE)</b>. She calls a contact who is confirmed still in the role."
+  },
+  left: {
+    hub: { name: "Marcus Lee", company: "Brightline Foods", title: "Head of Operations", linkedin: "linkedin.com/in/marcus-lee" },
+    li: [
+      { company: "Copperfield Logistics", title: "VP Operations", current: true, start: "Aug 2026" },
+      { company: "Brightline Foods", title: "Head of Operations", current: false, start: "Jan 2020" }
+    ],
+    note: [
+      ["Name", "Marcus Lee"],
+      ["Still at company", "No (now at Copperfield Logistics)", "no"]
+    ],
+    assign: "Assigned to <b>Sarah (AE)</b>. The note tells her before she dials that Marcus has moved on, so she finds the new contact at Brightline instead."
+  }
+};
+
+const steps = [
+  { title: "Contact becomes an SQL", cap: "A contact's lifecycle stage changes to Sales Qualified Lead. That enrolls them in the HubSpot workflow.", pay: s => `Lifecycle stage: Lead → Sales Qualified Lead\nContact: ${s.hub.name}` },
+  { title: "HubSpot sends the webhook", cap: "The first workflow action posts the contact's details to the n8n webhook. These are the fields the check needs, nothing more.", pay: s => `POST n8n /webhook\n\ncontact id   110050523429\nFirst Name   ${s.hub.name.split(" ")[0]}\nlast name    ${s.hub.name.split(" ")[1]}\ncompany name ${s.hub.company}\nJob title    ${s.hub.title}\nLinkedIn URL ${s.hub.linkedin}` },
+  { title: "n8n receives it, HubSpot waits", cap: "n8n picks up the contact. At the same moment HubSpot starts a 5-minute delay so the lead is not assigned before the check is done.", pay: s => `Webhook received ✓\nHubSpot delay: running` },
+  { title: "Apify pulls the live LinkedIn profile", cap: "The Apify actor scrapes the person's LinkedIn profile. Only the 3 most recent roles go forward to the AI, which keeps token use low.", pay: s => `Roles (newest first):\n` + s.li.map(r => `• ${r.title}\n  ${r.company} · ${r.current ? "current" : "past"} · from ${r.start}`).join("\n") },
+  { title: "Claude compares the two", cap: "The AI checks four things in order: same person, still at the HubSpot company, title actually changed (reworded titles don't count), and promoted to a more senior role in the last 12 months.", pay: s => `HubSpot:  ${s.hub.company} · ${s.hub.title}\nLinkedIn: ${s.li[0].company} · ${s.li[0].title}\n\n` + (s === scenarios.left ? "Different company → stop here" : "Same company\nSame job, reworded → no title change\nNo move up → not promoted") },
+  { title: "The note lands on the contact", cap: "An HTTP request creates a HubSpot note and attaches it to the contact using their record ID.", pay: s => `POST api.hubapi.com/crm/v3/objects/notes\nassociation → contact 110050523429\n\n201 Created ✓` },
+  { title: "Delay ends, the rep is assigned", cap: "HubSpot rotates the lead to a sales rep. When they open the record, the re-enrichment note is already the newest activity.", pay: s => `Rotate record to owner ✓` }
+];
+
+let scenario = "stayed", step = 0, playing = true, timerId = null, tick = null;
+const $ = id => document.getElementById(id);
+const dots = $("dots");
+steps.forEach(() => dots.appendChild(document.createElement("i")));
+
+function renderNote(show) {
+  const s = scenarios[scenario];
+  $("note").classList.toggle("pending", !show);
+  $("note-body").innerHTML = `<div class="line"><b>Re-enrichment check (17 Oct 2026)</b></div>` + s.note.map(([k, v, p]) =>
+    `<div class="line">${k}: ${p ? `<span class="pill ${p}">${v}</span>` : v}</div>`).join("");
+}
+
+function render() {
+  const s = scenarios[scenario];
+  document.querySelectorAll(".node").forEach(n => {
+    const ns = +n.dataset.s;
+    n.classList.toggle("active", ns === step);
+    n.classList.toggle("done", ns <= step);
+  });
+  $("b1").classList.toggle("on", step >= 1);
+  $("b2").classList.toggle("on", step >= 5);
+  [...dots.children].forEach((d, i) => d.classList.toggle("on", i <= step));
+  $("step-title").textContent = steps[step].title;
+  $("step-caption").textContent = steps[step].cap;
+  $("payload").textContent = steps[step].pay(s);
+  renderNote(step >= 5);
+  $("assign").innerHTML = step >= 6 ? s.assign : "Waiting for the 5-minute delay to finish before the lead is assigned.";
+  // compressed 5-minute countdown while the delay is running
+  clearInterval(tick);
+  if (step >= 2 && step < 6) {
+    const start = { 2: 300, 3: 225, 4: 150, 5: 75 }[step];
+    let left = start;
+    const show = () => $("timer").textContent = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}`;
+    show();
+    if (playing) tick = setInterval(() => { left = Math.max(start - 75, left - 3); show(); }, 80);
+  } else {
+    $("timer").textContent = step >= 6 ? "0:00" : "5:00";
+  }
+}
+
+function schedule() {
+  clearTimeout(timerId);
+  if (!playing) return;
+  timerId = setTimeout(() => {
+    step = step < steps.length - 1 ? step + 1 : 0;
+    render(); schedule();
+  }, step === steps.length - 1 ? 4200 : 2600);
+}
+
+function setScenario(name) {
+  scenario = name;
+  $("sc-stayed").setAttribute("aria-pressed", name === "stayed");
+  $("sc-left").setAttribute("aria-pressed", name === "left");
+  step = 0; render(); schedule();
+}
+
+$("sc-stayed").onclick = () => setScenario("stayed");
+$("sc-left").onclick = () => setScenario("left");
+$("replay").onclick = () => { step = 0; render(); schedule(); };
+$("play").onclick = () => {
+  playing = !playing;
+  $("play").textContent = playing ? "Pause" : "Play";
+  render(); schedule();
+};
+
+if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { playing = false; $("play").textContent = "Play"; step = steps.length - 1; }
+render(); schedule();
+</script>
