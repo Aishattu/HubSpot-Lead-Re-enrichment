@@ -115,7 +115,7 @@ The final answer is the text after the last tool result:
 ```
 :rotating_light: *SQL has changed companies*
 
-*{{ $('Parse Result').item.json.name }}* just became a Sales Qualified Lead, but they're no longer at *{{ $('Webhook (Data from HubSpot)').item.json.query['company name'] }}*.
+*{{ $('Parse Result').item.json.name }}* just became a Sales Qualified Lead, but no longer at *{{ $('Webhook (Data from HubSpot)').item.json.query['company name'] }}*.
 
 *Now at:* {{ $('Parse Result').item.json.current_company }}
 *New title:* {{ $('Parse Result').item.json.current_title }}
