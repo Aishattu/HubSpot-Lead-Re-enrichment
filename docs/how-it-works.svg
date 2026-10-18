@@ -1,59 +1,50 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 330" width="960" height="330" font-family="Helvetica, Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 420" width="1180" height="420" font-family="Helvetica, Arial, sans-serif">
   <style>
     .lane { font-size: 12px; font-weight: 700; letter-spacing: 1px; }
-    .k { font-size: 11px; fill: #5d6b78; }
-    .t { font-size: 14px; font-weight: 700; fill: #17212b; }
-    .cap { font-size: 12px; fill: #5d6b78; }
-    .box { stroke-width: 1.5; }
-    .pulse { animation: pulse 8s infinite; opacity: .35; }
-    @keyframes pulse { 0%, 100% { opacity: .35 } }
-    .s0 { animation: s0 8s infinite } @keyframes s0 { 0%,12% { opacity: 1 } 14%,100% { opacity: .45 } }
-    .s1 { animation: s1 8s infinite } @keyframes s1 { 0%,11% { opacity: .45 } 12%,24% { opacity: 1 } 26%,100% { opacity: .45 } }
-    .s2 { animation: s2 8s infinite } @keyframes s2 { 0%,23% { opacity: .45 } 24%,86% { opacity: 1 } 88%,100% { opacity: .45 } }
-    .s3 { animation: s3 8s infinite } @keyframes s3 { 0%,86% { opacity: .45 } 87%,100% { opacity: 1 } }
-    .n0 { animation: n0 8s infinite } @keyframes n0 { 0%,23% { opacity: .45 } 24%,36% { opacity: 1 } 38%,100% { opacity: .45 } }
-    .n1 { animation: n1 8s infinite } @keyframes n1 { 0%,36% { opacity: .45 } 37%,52% { opacity: 1 } 54%,100% { opacity: .45 } }
-    .n2 { animation: n2 8s infinite } @keyframes n2 { 0%,52% { opacity: .45 } 53%,68% { opacity: 1 } 70%,100% { opacity: .45 } }
-    .n3 { animation: n3 8s infinite } @keyframes n3 { 0%,68% { opacity: .45 } 69%,86% { opacity: 1 } 88%,100% { opacity: .45 } }
+    .k { font-size: 11px; fill: #6b7580; }
+    .t { font-size: 14px; font-weight: 700; fill: #14181d; }
+    .tag { font-size: 11px; fill: #6b7580; }
+    .box { fill: #fff; stroke-width: 1.5; }
   </style>
-  <rect width="960" height="330" rx="14" fill="#f3f5f7"/>
+  <rect width="1180" height="420" rx="14" fill="#ffffff" stroke="#e4e7eb"/>
 
   <!-- HubSpot lane -->
-  <text x="24" y="40" class="lane" fill="#d9622b">HUBSPOT WORKFLOW</text>
-  <g class="s0"><rect x="24" y="54" width="190" height="64" rx="10" fill="#fff" stroke="#d9622b" class="box"/>
-    <text x="38" y="78" class="k">Trigger</text><text x="38" y="100" class="t">Lifecycle stage = SQL</text></g>
-  <g class="s1"><rect x="258" y="54" width="190" height="64" rx="10" fill="#fff" stroke="#d9622b" class="box"/>
-    <text x="272" y="78" class="k">Action 1</text><text x="272" y="100" class="t">Send webhook</text></g>
-  <g class="s2"><rect x="492" y="54" width="190" height="64" rx="10" fill="#fff" stroke="#d9622b" class="box"/>
-    <text x="506" y="78" class="k">Action 2</text><text x="506" y="100" class="t">Delay 5 minutes</text></g>
-  <g class="s3"><rect x="726" y="54" width="210" height="64" rx="10" fill="#fff" stroke="#d9622b" class="box"/>
-    <text x="740" y="78" class="k">Action 3</text><text x="740" y="100" class="t">Rotate to sales rep</text></g>
-  <path d="M214 86 H258 M448 86 H492 M682 86 H726" stroke="#d9622b" stroke-width="2" fill="none"/>
+  <text x="24" y="38" class="lane" fill="#d9622b">HUBSPOT WORKFLOW</text>
+  <rect x="24" y="52" width="200" height="60" rx="10" class="box" stroke="#d9622b"/><text x="38" y="76" class="k">Trigger</text><text x="38" y="98" class="t">Lifecycle stage = SQL</text>
+  <rect x="264" y="52" width="170" height="60" rx="10" class="box" stroke="#d9622b"/><text x="278" y="76" class="k">Action 1</text><text x="278" y="98" class="t">Send webhook</text>
+  <rect x="474" y="52" width="170" height="60" rx="10" class="box" stroke="#d9622b"/><text x="488" y="76" class="k">Action 2</text><text x="488" y="98" class="t">Delay 5 minutes</text>
+  <rect x="684" y="52" width="190" height="60" rx="10" class="box" stroke="#d9622b"/><text x="698" y="76" class="k">Action 3</text><text x="698" y="98" class="t">Rotate to sales rep</text>
+  <path d="M224 82 H264 M434 82 H474 M644 82 H684" stroke="#d9622b" stroke-width="2" fill="none"/>
+
+  <!-- bridge -->
+  <path d="M349 112 V160 H94 V190" stroke="#a3acb5" stroke-width="1.5" stroke-dasharray="4 4" fill="none"/>
+  <text x="360" y="150" class="tag">contact data</text>
 
   <!-- n8n lane -->
-  <text x="24" y="196" class="lane" fill="#2f6f8f">N8N</text>
-  <g class="n0"><rect x="24" y="210" width="190" height="64" rx="10" fill="#fff" stroke="#2f6f8f" class="box"/>
-    <text x="38" y="234" class="k">Webhook</text><text x="38" y="256" class="t">Receive contact</text></g>
-  <g class="n1"><rect x="258" y="210" width="190" height="64" rx="10" fill="#fff" stroke="#2f6f8f" class="box"/>
-    <text x="272" y="234" class="k">Apify actor</text><text x="272" y="256" class="t">Latest LinkedIn data</text></g>
-  <g class="n2"><rect x="492" y="210" width="190" height="64" rx="10" fill="#fff" stroke="#2f6f8f" class="box"/>
-    <text x="506" y="234" class="k">Claude</text><text x="506" y="256" class="t">Compare to HubSpot</text></g>
-  <g class="n3"><rect x="726" y="210" width="210" height="64" rx="10" fill="#fff" stroke="#2f6f8f" class="box"/>
-    <text x="740" y="234" class="k">HTTP request</text><text x="740" y="256" class="t">Add note to contact</text></g>
-  <path d="M214 242 H258 M448 242 H492 M682 242 H726" stroke="#2f6f8f" stroke-width="2" fill="none"/>
+  <text x="24" y="180" class="lane" fill="#2747d8">N8N</text>
+  <rect x="24" y="190" width="140" height="60" rx="10" class="box" stroke="#2747d8"/><text x="38" y="214" class="k">Webhook</text><text x="38" y="236" class="t">Receive lead</text>
+  <rect x="194" y="190" width="150" height="60" rx="10" class="box" stroke="#2747d8"/><text x="208" y="214" class="k">Apify</text><text x="208" y="236" class="t">LinkedIn data</text>
+  <rect x="374" y="190" width="150" height="60" rx="10" class="box" stroke="#2747d8"/><text x="388" y="214" class="k">Claude</text><text x="388" y="236" class="t">Compare</text>
+  <rect x="554" y="190" width="150" height="60" rx="10" class="box" stroke="#2747d8"/><text x="568" y="214" class="k">Code</text><text x="568" y="236" class="t">Parse result</text>
+  <rect x="734" y="190" width="140" height="60" rx="10" class="box" stroke="#2747d8"/><text x="748" y="214" class="k">IF</text><text x="748" y="236" class="t">Still there?</text>
+  <path d="M164 220 H194 M344 220 H374 M524 220 H554 M704 220 H734" stroke="#2747d8" stroke-width="2" fill="none"/>
 
-  <!-- bridges -->
-  <path d="M353 118 C353 160 119 160 119 210" stroke="#9aa7b3" stroke-width="1.5" stroke-dasharray="4 4" fill="none"/>
-  <text x="150" y="160" class="cap">contact data</text>
-  <path d="M831 210 V118" stroke="#9aa7b3" stroke-width="1.5" stroke-dasharray="4 4" fill="none"/>
-  <text x="840" y="168" class="cap">note on record</text>
-  <text x="840" y="184" class="cap">before assignment</text>
+  <!-- branches -->
+  <path d="M874 220 C904 220 904 160 934 160" stroke="#1d8a52" stroke-width="2" fill="none"/>
+  <text x="884" y="176" class="tag">yes</text>
+  <rect x="934" y="130" width="220" height="60" rx="10" class="box" stroke="#1d8a52"/><text x="948" y="154" class="k">HTTP request</text><text x="948" y="176" class="t">Note on HubSpot contact</text>
+
+  <path d="M874 220 C904 220 904 300 934 300" stroke="#d4472c" stroke-width="2" fill="none"/>
+  <text x="884" y="278" class="tag">no</text>
+  <rect x="934" y="270" width="220" height="60" rx="10" class="box" stroke="#d4472c"/><text x="948" y="294" class="k">Claude + web search</text><text x="948" y="316" class="t">Research new company</text>
+  <path d="M1044 330 V350" stroke="#d4472c" stroke-width="2" fill="none"/>
+  <rect x="934" y="350" width="220" height="50" rx="10" class="box" stroke="#d4472c"/><text x="948" y="381" class="t">Slack alert</text>
 
   <!-- travelling dot -->
-  <circle r="6" fill="#17212b">
-    <animateMotion dur="8s" repeatCount="indefinite" keyPoints="0;0.1;0.25;0.4;0.6;0.8;0.8;1" keyTimes="0;0.12;0.24;0.37;0.53;0.69;0.87;1" calcMode="linear"
-      path="M119 86 H353 C353 160 119 160 119 242 H353 H587 H831 V86"/>
+  <circle r="6" fill="#2747d8">
+    <animateMotion dur="7s" repeatCount="indefinite" path="M124 82 H349 V160 H94 V220 H804 C904 220 904 160 1044 160"/>
   </circle>
-
-  <text x="24" y="312" class="cap">Every new SQL is checked against LinkedIn (still at the company? title changed? promoted?) and the answer is on the contact before a rep is assigned.</text>
+  <circle r="6" fill="#d4472c">
+    <animateMotion dur="7s" begin="3.5s" repeatCount="indefinite" path="M124 82 H349 V160 H94 V220 H804 C904 220 904 300 1044 300 V375"/>
+  </circle>
 </svg>
