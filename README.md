@@ -51,7 +51,21 @@ It has been useful for catching the leads that would otherwise waste a rep's fir
 
 ## Proof of work
 
+**Still at the company.** The title matches and there's no promotion, so the rep can go ahead with confidence.
+
+![Note on a contact who is still at the company](images/note-still-at-company.png)
+
+**Changed companies.** The note says where they are now, so nobody emails the old address.
+
+![Note on a contact who has left](images/note-left-company.png)
+
+**The n8n workflow**
+
 ![n8n workflow](images/n8n-workflow.png)
+
+**The HubSpot workflow**
+
+![HubSpot workflow](images/hubspot-workflow.png)
 
 ## Files
 
